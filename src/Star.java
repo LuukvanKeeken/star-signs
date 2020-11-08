@@ -10,8 +10,10 @@ public class Star {
     private final double speed;
     private double direction;
     private final StarSet starSet;
-    private final int distanceThreshold;
+    private final int maximumDistanceThreshold;
+    private final int minimumDistanceThreshold;
     private final double pullingFactor;
+    private final double pushingFactor;
 
     /**
      * Constructor for the Star class. The Star gets a
@@ -19,9 +21,12 @@ public class Star {
      * The Star object also gets a random starting direction,
      * which is an angle between 0 and 2pi.
      */
-    public Star(StarSet starSet, int distanceThreshold, double pullingFactor){
+    public Star(StarSet starSet, int maximumDistanceThreshold, int minimumDistanceThreshold,
+                double pullingFactor, double pushingFactor){
+        this.minimumDistanceThreshold = minimumDistanceThreshold;
+        this.pushingFactor = pushingFactor;
         this.pullingFactor = pullingFactor;
-        this.distanceThreshold = distanceThreshold;
+        this.maximumDistanceThreshold = maximumDistanceThreshold;
         this.starSet = starSet;
         this.lines = new ArrayList<>();
         this.xPosition = 1180 * Math.random();
@@ -64,16 +69,58 @@ public class Star {
      * @param secondStar The second Star object.
      * @return The calculated closeness value.
      */
-    private float getCloseness(Star firstStar, Star secondStar){
+    private float getCloseness(Star firstStar, Star secondStar, int threshold){
         float distance = (float)Math.sqrt(Math.pow(firstStar.getxPosition() - secondStar.getxPosition(), 2) +
                 Math.pow(firstStar.getyPosition() - secondStar.getyPosition(), 2));
         float closeness;
-        if (distance >= this.distanceThreshold){
+        if (distance >= threshold){
             closeness = 0;
         } else {
-            closeness = 1 - distance/this.distanceThreshold;
+            closeness = 1 - distance/threshold;
         }
         return closeness;
+    }
+
+    private void positionPushingDirectionInfluence(){
+        double[] currentDirUnitVec = {Math.cos(this.direction), Math.sin(this.direction)};
+        double[] influencingStarsDirVect = {0, 0};
+        ArrayList<Star> stars = this.starSet.getStars();
+        for (Star star : stars){
+            double closeness = getCloseness(this, star, this.minimumDistanceThreshold);
+            double differenceX = this.getxPosition() - star.getxPosition();
+            double differenceY = this.getyPosition() - star.getyPosition();
+            influencingStarsDirVect[0] = closeness*differenceX;
+            influencingStarsDirVect[1] = closeness*differenceY;
+        }
+
+        /*
+            Divide by the magnitude to make it a unit vector.
+         */
+        double magnitude = Math.sqrt(Math.pow(influencingStarsDirVect[0],2) +
+                Math.pow(influencingStarsDirVect[1], 2));
+        if (magnitude == 0){
+            magnitude += 0.00001;
+        }
+        influencingStarsDirVect[0] /= magnitude;
+        influencingStarsDirVect[1] /= magnitude;
+
+        /*
+            Adjust the current direction vector by adding the unit
+            vector of the influencing stars, multiplied with the
+            pulling factor.
+         */
+        currentDirUnitVec[0] += this.pushingFactor*influencingStarsDirVect[0];
+        currentDirUnitVec[1] += this.pushingFactor*influencingStarsDirVect[1];
+        if (currentDirUnitVec[0] == 0){
+            currentDirUnitVec[0] += 0.00001;
+        }
+        double newDirection = Math.atan(currentDirUnitVec[1]/currentDirUnitVec[0]);
+        if (currentDirUnitVec[0] < 0 || (currentDirUnitVec[0] < 0 && currentDirUnitVec[1] < 0)){
+            newDirection += Math.PI;
+        } else if (currentDirUnitVec[1] < 0){
+            newDirection += 2*Math.PI;
+        }
+        this.direction = newDirection;
     }
 
     /**
@@ -94,7 +141,7 @@ public class Star {
          */
         ArrayList<Star> stars = this.starSet.getStars();
         for (Star star : stars){
-            double closeness = getCloseness(this, star);
+            double closeness = getCloseness(this, star, this.maximumDistanceThreshold);
             double differenceX = star.getxPosition() - this.getxPosition();
             double differenceY = star.getyPosition() - this.getyPosition();
             influencingStarsDirVect[0] += closeness*differenceX;
@@ -102,17 +149,13 @@ public class Star {
         }
 
         /*
-            Average the summed vector by the number of stars, and
-            divide by the magnitude to make it a unit vector.
+            Divide by the magnitude to make it a unit vector.
          */
-        influencingStarsDirVect[0] /= stars.size();
-        influencingStarsDirVect[1] /= stars.size();
         double magnitude = Math.sqrt(Math.pow(influencingStarsDirVect[0],2) +
                 Math.pow(influencingStarsDirVect[1], 2));
         if (magnitude == 0){
             magnitude += 0.00001;
         }
-
         influencingStarsDirVect[0] /= magnitude;
         influencingStarsDirVect[1] /= magnitude;
 
@@ -189,6 +232,7 @@ public class Star {
      */
     public void updatePosition(){
         positionPullingDirectionInfluence();
+        positionPushingDirectionInfluence();
         updateXPosition();
         updateYPosition();
     }

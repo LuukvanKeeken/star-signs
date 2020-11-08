@@ -8,14 +8,19 @@ import java.util.Observer;
 public class StarSet extends Observable implements Observer {
     private final ArrayList<Star> stars;
     private final ArrayList<StarLine> lines;
-    private final int distanceThreshold;
+    private final int maximumDistanceThreshold;
+    private final int minimumDistanceThreshold;
     private final double pullingFactor;
+    private final double pushingFactor;
 
     /**
      * The StarSet constructor. 10 Stars are added.
      */
-    public StarSet(int distanceThreshold, double pullingFactor){
-        this.distanceThreshold = distanceThreshold;
+    public StarSet(int maximumDistanceThreshold, int minimumDistanceThreshold,
+                   double pullingFactor, double pushingFactor){
+        this.pushingFactor = pushingFactor;
+        this.minimumDistanceThreshold = minimumDistanceThreshold;
+        this.maximumDistanceThreshold = maximumDistanceThreshold;
         this.pullingFactor = pullingFactor;
         this.stars = new ArrayList<>();
         this.lines = new ArrayList<>();
@@ -46,7 +51,8 @@ public class StarSet extends Observable implements Observer {
      * existing stars.
      */
     private void addStar(){
-        Star newStar = new Star(this, this.distanceThreshold, this.pullingFactor);
+        Star newStar = new Star(this, this.maximumDistanceThreshold, this.minimumDistanceThreshold,
+                this.pullingFactor, this.pushingFactor);
         for (Star star : stars) {
             StarLine newLine = new StarLine(star, newStar);
             this.lines.add(newLine);

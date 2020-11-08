@@ -4,10 +4,13 @@
 public class Main {
 
     public static void main(String[] args){
-        int distanceThreshold = 400;
+        int maximumDistanceThreshold = 400;
+        int minimumDistanceThreshold = 20;
         double pullingFactor = 0.003;
-        StarSet starSet = new StarSet(distanceThreshold, pullingFactor);
-        new StarSetFrame(starSet, distanceThreshold);
+        double pushingFactor = 1;
+        StarSet starSet = new StarSet(maximumDistanceThreshold, minimumDistanceThreshold,
+                pullingFactor, pushingFactor);
+        new StarSetFrame(starSet, maximumDistanceThreshold);
         try{
             starSet.moveStars();
         } catch (Exception e){
