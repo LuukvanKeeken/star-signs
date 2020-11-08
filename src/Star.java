@@ -69,14 +69,14 @@ public class Star {
      * @param secondStar The second Star object.
      * @return The calculated closeness value.
      */
-    private float getCloseness(Star firstStar, Star secondStar, int threshold){
+    private float getCloseness(Star firstStar, Star secondStar, int maxThreshold, int minThreshold){
         float distance = (float)Math.sqrt(Math.pow(firstStar.getxPosition() - secondStar.getxPosition(), 2) +
                 Math.pow(firstStar.getyPosition() - secondStar.getyPosition(), 2));
         float closeness;
-        if (distance >= threshold){
+        if (distance >= maxThreshold || distance < minThreshold){
             closeness = 0;
         } else {
-            closeness = 1 - distance/threshold;
+            closeness = 1 - distance/maxThreshold;
         }
         return closeness;
     }
@@ -86,7 +86,7 @@ public class Star {
         double[] influencingStarsDirVect = {0, 0};
         ArrayList<Star> stars = this.starSet.getStars();
         for (Star star : stars){
-            double closeness = getCloseness(this, star, this.minimumDistanceThreshold);
+            double closeness = getCloseness(this, star, this.minimumDistanceThreshold, 0);
             double differenceX = this.getxPosition() - star.getxPosition();
             double differenceY = this.getyPosition() - star.getyPosition();
             influencingStarsDirVect[0] = closeness*differenceX;
@@ -141,7 +141,8 @@ public class Star {
          */
         ArrayList<Star> stars = this.starSet.getStars();
         for (Star star : stars){
-            double closeness = getCloseness(this, star, this.maximumDistanceThreshold);
+            double closeness = getCloseness(this, star, this.maximumDistanceThreshold,
+                    this.minimumDistanceThreshold);
             double differenceX = star.getxPosition() - this.getxPosition();
             double differenceY = star.getyPosition() - this.getyPosition();
             influencingStarsDirVect[0] += closeness*differenceX;
@@ -227,6 +228,9 @@ public class Star {
         this.yPosition = newValue;
     }
 
+    /* TODO integrate both direction changers to one changer. Doing it in
+    *   sequence is not correct, as then the second changer uses the change
+    *   from the previous calculation, and not the actual direction. */
     /**
      * Method that updates the x- and y-coordinates of the Star.
      */

@@ -7,7 +7,7 @@ public class Main {
         int maximumDistanceThreshold = 400;
         int minimumDistanceThreshold = 20;
         double pullingFactor = 0.003;
-        double pushingFactor = 1;
+        double pushingFactor = 5;
         StarSet starSet = new StarSet(maximumDistanceThreshold, minimumDistanceThreshold,
                 pullingFactor, pushingFactor);
         new StarSetFrame(starSet, maximumDistanceThreshold);
