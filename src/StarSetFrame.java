@@ -10,9 +10,9 @@ public class StarSetFrame extends JFrame {
      * The constructor for the StarSetFrame.
      * @param starSet The corresponding starSet.
      */
-    public StarSetFrame(StarSet starSet){
+    public StarSetFrame(StarSet starSet, int distanceThreshold){
         super("Star set");
-        StarSetPanel panel = new StarSetPanel(starSet);
+        StarSetPanel panel = new StarSetPanel(starSet, distanceThreshold);
         add(panel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(1200,850));

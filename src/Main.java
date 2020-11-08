@@ -4,8 +4,10 @@
 public class Main {
 
     public static void main(String[] args){
-        StarSet starSet = new StarSet();
-        new StarSetFrame(starSet);
+        int distanceThreshold = 400;
+        double pullingFactor = 0.003;
+        StarSet starSet = new StarSet(distanceThreshold, pullingFactor);
+        new StarSetFrame(starSet, distanceThreshold);
         try{
             starSet.moveStars();
         } catch (Exception e){

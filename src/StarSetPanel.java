@@ -10,12 +10,14 @@ import java.awt.*;
  */
 public class StarSetPanel extends JPanel implements Observer {
     private final StarSet starSet;
+    private final int distanceThreshold;
 
     /**
      * Constructor for the StarSetPanel.
      * @param starSet The corresponding starSet.
      */
-    public StarSetPanel(StarSet starSet){
+    public StarSetPanel(StarSet starSet, int distanceThreshold){
+        this.distanceThreshold = distanceThreshold;
         setBackground(new Color(0, 0, 0));
         setVisible(true);
         setOpaque(true);
@@ -46,9 +48,9 @@ public class StarSetPanel extends JPanel implements Observer {
 
     /**
      * Method that calculates the closeness between two points,
-     * on a scale from 0 to 1. If the distance is bigger than 600,
+     * on a scale from 0 to 1. If the distance is bigger than the distance threshold,
      * the closeness is set to 0, otherwise the closeness is 1 minus
-     * the distance divided by 600.
+     * the distance divided by the distance threshold.
      * @param firstStar The first Star object.
      * @param secondStar The second Star object.
      * @return The calculated closeness value.
@@ -57,10 +59,10 @@ public class StarSetPanel extends JPanel implements Observer {
         float distance = (float)Math.sqrt(Math.pow(firstStar.getxPosition() - secondStar.getxPosition(), 2) +
                 Math.pow(firstStar.getyPosition() - secondStar.getyPosition(), 2));
         float closeness;
-        if (distance >= 600){
+        if (distance >= this.distanceThreshold){
             closeness = 0;
         } else {
-            closeness = 1 - distance/600;
+            closeness = 1 - distance/this.distanceThreshold;
         }
         return closeness;
     }
